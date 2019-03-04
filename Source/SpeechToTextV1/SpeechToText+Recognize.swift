@@ -25,6 +25,18 @@ private var microphoneSession: SpeechToTextSession?
 
 extension SpeechToText {
 
+    /// The URL that shall be used to stream audio for transcription.
+    internal var websocketsURL: String {
+        return serviceURL
+            .replacingOccurrences(of: "http", with: "ws", options: .anchored, range: nil)
+            + "/v1/recognize"
+    }
+
+    /// The URL that shall be used to obtain a token.
+    internal var tokenURL: String {
+        return serviceURL.replacingOccurrences(of: "/speech-to-text/api", with: "/authorization/api/v1/token")
+    }
+
     /**
      Perform speech recognition for an audio file.
 
