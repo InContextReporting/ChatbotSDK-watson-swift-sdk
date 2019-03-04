@@ -20,9 +20,8 @@ import Foundation
 public struct DialogNodeOutputTextValuesElement: Codable, Equatable {
 
     /**
-     The text of a response. This string can include newline characters (`
-     `), Markdown tagging, or other special characters, if supported by the channel. It must be no longer than 4096
-     characters.
+     The text of a response. This string can include newline characters (`\\n`), Markdown tagging, or other special
+     characters, if supported by the channel. It must be no longer than 4096 characters.
      */
     public var text: String?
 
@@ -34,15 +33,14 @@ public struct DialogNodeOutputTextValuesElement: Codable, Equatable {
     /**
      Initialize a `DialogNodeOutputTextValuesElement` with member variables.
 
-     - parameter text: The text of a response. This string can include newline characters (`
-       `), Markdown tagging, or other special characters, if supported by the channel. It must be no longer than 4096
-       characters.
+     - parameter text: The text of a response. This string can include newline characters (`\\n`), Markdown tagging,
+       or other special characters, if supported by the channel. It must be no longer than 4096 characters.
 
      - returns: An initialized `DialogNodeOutputTextValuesElement`.
     */
     public init(
-        text: String? = nil
-    )
+            text: String? = nil
+        )
     {
         self.text = text
     }

@@ -17,10 +17,13 @@
 import Foundation
 
 /**
- An array of entities resulting from the query.
+ An object that contains an array of entities resulting from the query.
  */
 public struct QueryEntitiesResponse: Codable, Equatable {
 
+    /**
+     Array of entities that results from the query.
+     */
     public var entities: [QueryEntitiesResponseItem]?
 
     // Map each property name to the key that shall be used for encoding/decoding.

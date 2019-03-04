@@ -19,14 +19,8 @@ import Foundation
 /** QueryRelationsFilter. */
 public struct QueryRelationsFilter: Codable, Equatable {
 
-    /**
-     A list of relation types to include or exclude from the query.
-     */
     public var relationTypes: QueryFilterType?
 
-    /**
-     A list of entity types to include or exclude from the query.
-     */
     public var entityTypes: QueryFilterType?
 
     /**
@@ -44,8 +38,8 @@ public struct QueryRelationsFilter: Codable, Equatable {
     /**
      Initialize a `QueryRelationsFilter` with member variables.
 
-     - parameter relationTypes: A list of relation types to include or exclude from the query.
-     - parameter entityTypes: A list of entity types to include or exclude from the query.
+     - parameter relationTypes:
+     - parameter entityTypes:
      - parameter documentIDs: A comma-separated list of document IDs to include in the query.
 
      - returns: An initialized `QueryRelationsFilter`.

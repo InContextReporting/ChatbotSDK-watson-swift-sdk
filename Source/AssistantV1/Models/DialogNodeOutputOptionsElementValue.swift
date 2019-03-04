@@ -25,7 +25,7 @@ public struct DialogNodeOutputOptionsElementValue: Codable, Equatable {
     /**
      An input object that includes the input text.
      */
-    public var input: InputData?
+    public var input: MessageInput?
 
     // Map each property name to the key that shall be used for encoding/decoding.
     private enum CodingKeys: String, CodingKey {
@@ -40,7 +40,7 @@ public struct DialogNodeOutputOptionsElementValue: Codable, Equatable {
      - returns: An initialized `DialogNodeOutputOptionsElementValue`.
     */
     public init(
-        input: InputData? = nil
+        input: MessageInput? = nil
     )
     {
         self.input = input

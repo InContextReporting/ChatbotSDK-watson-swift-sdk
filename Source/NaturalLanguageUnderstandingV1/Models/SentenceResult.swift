@@ -16,43 +16,23 @@
 
 import Foundation
 
-/**
- A mention of a contextual entity.
- */
-public struct Mentions: Codable, Equatable {
+/** SentenceResult. */
+public struct SentenceResult: Codable, Equatable {
 
     /**
-     The name of the entity.
+     The sentence.
      */
-    public var entity: String
+    public var text: String?
 
     /**
-     An array of zero-based character offsets that indicate where the entity mentions begin and end in the input text.
+     Character offsets indicating the beginning and end of the sentence in the analyzed text.
      */
-    public var location: [Int]
+    public var location: [Int]?
 
     // Map each property name to the key that shall be used for encoding/decoding.
     private enum CodingKeys: String, CodingKey {
-        case entity = "entity"
+        case text = "text"
         case location = "location"
-    }
-
-    /**
-     Initialize a `Mentions` with member variables.
-
-     - parameter entity: The name of the entity.
-     - parameter location: An array of zero-based character offsets that indicate where the entity mentions begin and
-       end in the input text.
-
-     - returns: An initialized `Mentions`.
-    */
-    public init(
-        entity: String,
-        location: [Int]
-    )
-    {
-        self.entity = entity
-        self.location = location
     }
 
 }

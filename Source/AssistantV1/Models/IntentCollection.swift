@@ -22,7 +22,7 @@ public struct IntentCollection: Codable, Equatable {
     /**
      An array of objects describing the intents defined for the workspace.
      */
-    public var intents: [IntentExport]
+    public var intents: [Intent]
 
     /**
      The pagination data for the returned objects.

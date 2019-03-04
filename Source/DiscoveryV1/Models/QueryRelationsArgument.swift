@@ -19,6 +19,9 @@ import Foundation
 /** QueryRelationsArgument. */
 public struct QueryRelationsArgument: Codable, Equatable {
 
+    /**
+     Array of query entities.
+     */
     public var entities: [QueryEntitiesEntity]?
 
     // Map each property name to the key that shall be used for encoding/decoding.

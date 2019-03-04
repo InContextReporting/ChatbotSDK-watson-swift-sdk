@@ -142,14 +142,14 @@ public class Assistant {
 
      - parameter workspaceID: Unique identifier of the workspace.
      - parameter input: An input object that includes the input text.
-     - parameter alternateIntents: Whether to return more than one intent. Set to `true` to return all matching
-       intents.
-     - parameter context: State information for the conversation. To maintain state, include the context from the
-       previous response.
-     - parameter entities: Entities to use when evaluating the message. Include entities from the previous response to
-       continue using those entities rather than detecting entities in the new input.
      - parameter intents: Intents to use when evaluating the user input. Include intents from the previous response to
        continue using those intents rather than trying to recognize intents in the new input.
+     - parameter entities: Entities to use when evaluating the message. Include entities from the previous response to
+       continue using those entities rather than detecting entities in the new input.
+     - parameter alternateIntents: Whether to return more than one intent. A value of `true` indicates that all
+       matching intents are returned.
+     - parameter context: State information for the conversation. To maintain state, include the context from the
+       previous response.
      - parameter output: An output object that includes the response to the user, the dialog nodes that were
        triggered, and messages from the log.
      - parameter nodesVisitedDetails: Whether to include additional diagnostic information about the dialog nodes that
@@ -159,11 +159,11 @@ public class Assistant {
      */
     public func message(
         workspaceID: String,
-        input: InputData? = nil,
+        input: MessageInput? = nil,
+        intents: [RuntimeIntent]? = nil,
+        entities: [RuntimeEntity]? = nil,
         alternateIntents: Bool? = nil,
         context: Context? = nil,
-        entities: [RuntimeEntity]? = nil,
-        intents: [RuntimeIntent]? = nil,
         output: OutputData? = nil,
         nodesVisitedDetails: Bool? = nil,
         headers: [String: String]? = nil,
@@ -172,12 +172,12 @@ public class Assistant {
         // construct body
         let messageRequest = MessageRequest(
             input: input,
+            intents: intents,
+            entities: entities,
             alternateIntents: alternateIntents,
             context: context,
-            entities: entities,
-            intents: intents,
             output: output)
-        guard let body = try? JSONEncoder().encodeIfPresent(messageRequest) else {
+        guard let body = try? JSON.encoder.encodeIfPresent(messageRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -306,15 +306,16 @@ public class Assistant {
      - parameter description: The description of the workspace. This string cannot contain carriage return, newline,
        or tab characters, and it must be no longer than 128 characters.
      - parameter language: The language of the workspace.
+     - parameter metadata: Any metadata related to the workspace.
+     - parameter learningOptOut: Whether training data from the workspace (including artifacts such as intents and
+       entities) can be used by IBM for general service improvements. `true` indicates that workspace training data is
+       not to be used.
+     - parameter systemSettings: Global settings for the workspace.
      - parameter intents: An array of objects defining the intents for the workspace.
-     - parameter entities: An array of objects defining the entities for the workspace.
-     - parameter dialogNodes: An array of objects defining the nodes in the dialog.
+     - parameter entities: An array of objects describing the entities for the workspace.
+     - parameter dialogNodes: An array of objects describing the dialog nodes in the workspace.
      - parameter counterexamples: An array of objects defining input examples that have been marked as irrelevant
        input.
-     - parameter metadata: Any metadata related to the workspace.
-     - parameter learningOptOut: Whether training data from the workspace can be used by IBM for general service
-       improvements. `true` indicates that workspace training data is not to be used.
-     - parameter systemSettings: Global settings for the workspace.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
@@ -322,13 +323,13 @@ public class Assistant {
         name: String? = nil,
         description: String? = nil,
         language: String? = nil,
-        intents: [CreateIntent]? = nil,
-        entities: [CreateEntity]? = nil,
-        dialogNodes: [CreateDialogNode]? = nil,
-        counterexamples: [CreateCounterexample]? = nil,
         metadata: [String: JSON]? = nil,
         learningOptOut: Bool? = nil,
         systemSettings: WorkspaceSystemSettings? = nil,
+        intents: [CreateIntent]? = nil,
+        entities: [CreateEntity]? = nil,
+        dialogNodes: [DialogNode]? = nil,
+        counterexamples: [Counterexample]? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Workspace>?, WatsonError?) -> Void)
     {
@@ -337,14 +338,14 @@ public class Assistant {
             name: name,
             description: description,
             language: language,
+            metadata: metadata,
+            learningOptOut: learningOptOut,
+            systemSettings: systemSettings,
             intents: intents,
             entities: entities,
             dialogNodes: dialogNodes,
-            counterexamples: counterexamples,
-            metadata: metadata,
-            learningOptOut: learningOptOut,
-            systemSettings: systemSettings)
-        guard let body = try? JSONEncoder().encodeIfPresent(createWorkspaceRequest) else {
+            counterexamples: counterexamples)
+        guard let body = try? JSON.encoder.encodeIfPresent(createWorkspaceRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -404,7 +405,7 @@ public class Assistant {
         includeAudit: Bool? = nil,
         sort: String? = nil,
         headers: [String: String]? = nil,
-        completionHandler: @escaping (WatsonResponse<WorkspaceExport>?, WatsonError?) -> Void)
+        completionHandler: @escaping (WatsonResponse<Workspace>?, WatsonError?) -> Void)
     {
         // construct header parameters
         var headerParameters = defaultHeaders
@@ -464,15 +465,16 @@ public class Assistant {
      - parameter description: The description of the workspace. This string cannot contain carriage return, newline,
        or tab characters, and it must be no longer than 128 characters.
      - parameter language: The language of the workspace.
+     - parameter metadata: Any metadata related to the workspace.
+     - parameter learningOptOut: Whether training data from the workspace (including artifacts such as intents and
+       entities) can be used by IBM for general service improvements. `true` indicates that workspace training data is
+       not to be used.
+     - parameter systemSettings: Global settings for the workspace.
      - parameter intents: An array of objects defining the intents for the workspace.
-     - parameter entities: An array of objects defining the entities for the workspace.
-     - parameter dialogNodes: An array of objects defining the nodes in the dialog.
+     - parameter entities: An array of objects describing the entities for the workspace.
+     - parameter dialogNodes: An array of objects describing the dialog nodes in the workspace.
      - parameter counterexamples: An array of objects defining input examples that have been marked as irrelevant
        input.
-     - parameter metadata: Any metadata related to the workspace.
-     - parameter learningOptOut: Whether training data from the workspace can be used by IBM for general service
-       improvements. `true` indicates that workspace training data is not to be used.
-     - parameter systemSettings: Global settings for the workspace.
      - parameter append: Whether the new data is to be appended to the existing data in the workspace. If
        **append**=`false`, elements included in the new data completely replace the corresponding existing elements,
        including all subelements. For example, if the new data includes **entities** and **append**=`false`, all
@@ -487,13 +489,13 @@ public class Assistant {
         name: String? = nil,
         description: String? = nil,
         language: String? = nil,
-        intents: [CreateIntent]? = nil,
-        entities: [CreateEntity]? = nil,
-        dialogNodes: [CreateDialogNode]? = nil,
-        counterexamples: [CreateCounterexample]? = nil,
         metadata: [String: JSON]? = nil,
         learningOptOut: Bool? = nil,
         systemSettings: WorkspaceSystemSettings? = nil,
+        intents: [CreateIntent]? = nil,
+        entities: [CreateEntity]? = nil,
+        dialogNodes: [DialogNode]? = nil,
+        counterexamples: [Counterexample]? = nil,
         append: Bool? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Workspace>?, WatsonError?) -> Void)
@@ -503,14 +505,14 @@ public class Assistant {
             name: name,
             description: description,
             language: language,
+            metadata: metadata,
+            learningOptOut: learningOptOut,
+            systemSettings: systemSettings,
             intents: intents,
             entities: entities,
             dialogNodes: dialogNodes,
-            counterexamples: counterexamples,
-            metadata: metadata,
-            learningOptOut: learningOptOut,
-            systemSettings: systemSettings)
-        guard let body = try? JSONEncoder().encodeIfPresent(updateWorkspaceRequest) else {
+            counterexamples: counterexamples)
+        guard let body = try? JSON.encoder.encodeIfPresent(updateWorkspaceRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -712,7 +714,7 @@ public class Assistant {
         workspaceID: String,
         intent: String,
         description: String? = nil,
-        examples: [CreateExample]? = nil,
+        examples: [Example]? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Intent>?, WatsonError?) -> Void)
     {
@@ -721,7 +723,7 @@ public class Assistant {
             intent: intent,
             description: description,
             examples: examples)
-        guard let body = try? JSONEncoder().encode(createIntentRequest) else {
+        guard let body = try? JSON.encoder.encode(createIntentRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -784,7 +786,7 @@ public class Assistant {
         export: Bool? = nil,
         includeAudit: Bool? = nil,
         headers: [String: String]? = nil,
-        completionHandler: @escaping (WatsonResponse<IntentExport>?, WatsonError?) -> Void)
+        completionHandler: @escaping (WatsonResponse<Intent>?, WatsonError?) -> Void)
     {
         // construct header parameters
         var headerParameters = defaultHeaders
@@ -840,7 +842,8 @@ public class Assistant {
        - It can contain only Unicode alphanumeric, underscore, hyphen, and dot characters.
        - It cannot begin with the reserved prefix `sys-`.
        - It must be no longer than 128 characters.
-     - parameter newDescription: The description of the intent.
+     - parameter newDescription: The description of the intent. This string cannot contain carriage return, newline,
+       or tab characters, and it must be no longer than 128 characters.
      - parameter newExamples: An array of user input examples for the intent.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
@@ -850,7 +853,7 @@ public class Assistant {
         intent: String,
         newIntent: String? = nil,
         newDescription: String? = nil,
-        newExamples: [CreateExample]? = nil,
+        newExamples: [Example]? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Intent>?, WatsonError?) -> Void)
     {
@@ -859,7 +862,7 @@ public class Assistant {
             intent: newIntent,
             description: newDescription,
             examples: newExamples)
-        guard let body = try? JSONEncoder().encode(updateIntentRequest) else {
+        guard let body = try? JSON.encoder.encode(updateIntentRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -1051,15 +1054,15 @@ public class Assistant {
         workspaceID: String,
         intent: String,
         text: String,
-        mentions: [Mentions]? = nil,
+        mentions: [Mention]? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Example>?, WatsonError?) -> Void)
     {
         // construct body
-        let createExampleRequest = CreateExample(
+        let createExampleRequest = Example(
             text: text,
             mentions: mentions)
-        guard let body = try? JSONEncoder().encode(createExampleRequest) else {
+        guard let body = try? JSON.encoder.encode(createExampleRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -1180,7 +1183,7 @@ public class Assistant {
         intent: String,
         text: String,
         newText: String? = nil,
-        newMentions: [Mentions]? = nil,
+        newMentions: [Mention]? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Example>?, WatsonError?) -> Void)
     {
@@ -1188,7 +1191,7 @@ public class Assistant {
         let updateExampleRequest = UpdateExample(
             text: newText,
             mentions: newMentions)
-        guard let body = try? JSONEncoder().encode(updateExampleRequest) else {
+        guard let body = try? JSON.encoder.encode(updateExampleRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -1382,9 +1385,9 @@ public class Assistant {
         completionHandler: @escaping (WatsonResponse<Counterexample>?, WatsonError?) -> Void)
     {
         // construct body
-        let createCounterexampleRequest = CreateCounterexample(
+        let createCounterexampleRequest = Counterexample(
             text: text)
-        guard let body = try? JSONEncoder().encode(createCounterexampleRequest) else {
+        guard let body = try? JSON.encoder.encode(createCounterexampleRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -1489,7 +1492,11 @@ public class Assistant {
 
      - parameter workspaceID: Unique identifier of the workspace.
      - parameter text: The text of a user input counterexample (for example, `What are you wearing?`).
-     - parameter newText: The text of a user input counterexample.
+     - parameter newText: The text of a user input marked as irrelevant input. This string must conform to the
+       following restrictions:
+       - It cannot contain carriage return, newline, or tab characters
+       - It cannot consist of only whitespace characters
+       - It must be no longer than 1024 characters.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
@@ -1503,7 +1510,7 @@ public class Assistant {
         // construct body
         let updateCounterexampleRequest = UpdateCounterexample(
             text: newText)
-        guard let body = try? JSONEncoder().encode(updateCounterexampleRequest) else {
+        guard let body = try? JSON.encoder.encode(updateCounterexampleRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -1696,9 +1703,9 @@ public class Assistant {
        that you want to enable. (Any entity content specified with the request is ignored.).
      - parameter description: The description of the entity. This string cannot contain carriage return, newline, or
        tab characters, and it must be no longer than 128 characters.
-     - parameter metadata: Any metadata related to the value.
-     - parameter values: An array of objects describing the entity values.
+     - parameter metadata: Any metadata related to the entity.
      - parameter fuzzyMatch: Whether to use fuzzy matching for the entity.
+     - parameter values: An array of objects describing the entity values.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
@@ -1707,8 +1714,8 @@ public class Assistant {
         entity: String,
         description: String? = nil,
         metadata: [String: JSON]? = nil,
-        values: [CreateValue]? = nil,
         fuzzyMatch: Bool? = nil,
+        values: [CreateValue]? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Entity>?, WatsonError?) -> Void)
     {
@@ -1717,9 +1724,9 @@ public class Assistant {
             entity: entity,
             description: description,
             metadata: metadata,
-            values: values,
-            fuzzyMatch: fuzzyMatch)
-        guard let body = try? JSONEncoder().encode(createEntityRequest) else {
+            fuzzyMatch: fuzzyMatch,
+            values: values)
+        guard let body = try? JSON.encoder.encode(createEntityRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -1782,7 +1789,7 @@ public class Assistant {
         export: Bool? = nil,
         includeAudit: Bool? = nil,
         headers: [String: String]? = nil,
-        completionHandler: @escaping (WatsonResponse<EntityExport>?, WatsonError?) -> Void)
+        completionHandler: @escaping (WatsonResponse<Entity>?, WatsonError?) -> Void)
     {
         // construct header parameters
         var headerParameters = defaultHeaders
@@ -1842,7 +1849,7 @@ public class Assistant {
        or tab characters, and it must be no longer than 128 characters.
      - parameter newMetadata: Any metadata related to the entity.
      - parameter newFuzzyMatch: Whether to use fuzzy matching for the entity.
-     - parameter newValues: An array of entity values.
+     - parameter newValues: An array of objects describing the entity values.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
@@ -1864,7 +1871,7 @@ public class Assistant {
             metadata: newMetadata,
             fuzzyMatch: newFuzzyMatch,
             values: newValues)
-        guard let body = try? JSONEncoder().encode(updateEntityRequest) else {
+        guard let body = try? JSON.encoder.encode(updateEntityRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -2111,7 +2118,7 @@ public class Assistant {
     }
 
     /**
-     Add entity value.
+     Create entity value.
 
      Create a new value for an entity.
      This operation is limited to 1000 requests per 30 minutes. For more information, see **Rate limiting**.
@@ -2123,16 +2130,16 @@ public class Assistant {
        - It cannot consist of only whitespace characters.
        - It must be no longer than 64 characters.
      - parameter metadata: Any metadata related to the entity value.
-     - parameter synonyms: An array containing any synonyms for the entity value. You can provide either synonyms or
-       patterns (as indicated by **type**), but not both. A synonym must conform to the following restrictions:
+     - parameter valueType: Specifies the type of entity value.
+     - parameter synonyms: An array of synonyms for the entity value. A value can specify either synonyms or patterns
+       (depending on the value type), but not both. A synonym must conform to the following resrictions:
        - It cannot contain carriage return, newline, or tab characters.
        - It cannot consist of only whitespace characters.
        - It must be no longer than 64 characters.
-     - parameter patterns: An array of patterns for the entity value. You can provide either synonyms or patterns (as
-       indicated by **type**), but not both. A pattern is a regular expression no longer than 512 characters. For more
-       information about how to specify a pattern, see the
-       [documentation](https://cloud.ibm.com/docs/services/assistant/entities.html#creating-entities).
-     - parameter valueType: Specifies the type of value.
+     - parameter patterns: An array of patterns for the entity value. A value can specify either synonyms or patterns
+       (depending on the value type), but not both. A pattern is a regular expression no longer than 512 characters. For
+       more information about how to specify a pattern, see the
+       [documentation](https://cloud.ibm.com/docs/services/assistant/entities.html#entities-create-dictionary-based).
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
@@ -2141,9 +2148,9 @@ public class Assistant {
         entity: String,
         value: String,
         metadata: [String: JSON]? = nil,
+        valueType: String? = nil,
         synonyms: [String]? = nil,
         patterns: [String]? = nil,
-        valueType: String? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Value>?, WatsonError?) -> Void)
     {
@@ -2151,10 +2158,10 @@ public class Assistant {
         let createValueRequest = CreateValue(
             value: value,
             metadata: metadata,
+            valueType: valueType,
             synonyms: synonyms,
-            patterns: patterns,
-            valueType: valueType)
-        guard let body = try? JSONEncoder().encode(createValueRequest) else {
+            patterns: patterns)
+        guard let body = try? JSON.encoder.encode(createValueRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -2218,7 +2225,7 @@ public class Assistant {
         export: Bool? = nil,
         includeAudit: Bool? = nil,
         headers: [String: String]? = nil,
-        completionHandler: @escaping (WatsonResponse<ValueExport>?, WatsonError?) -> Void)
+        completionHandler: @escaping (WatsonResponse<Value>?, WatsonError?) -> Void)
     {
         // construct header parameters
         var headerParameters = defaultHeaders
@@ -2276,16 +2283,16 @@ public class Assistant {
        - It cannot consist of only whitespace characters.
        - It must be no longer than 64 characters.
      - parameter newMetadata: Any metadata related to the entity value.
-     - parameter newType: Specifies the type of value.
-     - parameter newSynonyms: An array of synonyms for the entity value. You can provide either synonyms or patterns
-       (as indicated by **type**), but not both. A synonym must conform to the following resrictions:
+     - parameter newValueType: Specifies the type of entity value.
+     - parameter newSynonyms: An array of synonyms for the entity value. A value can specify either synonyms or
+       patterns (depending on the value type), but not both. A synonym must conform to the following resrictions:
        - It cannot contain carriage return, newline, or tab characters.
        - It cannot consist of only whitespace characters.
        - It must be no longer than 64 characters.
-     - parameter newPatterns: An array of patterns for the entity value. You can provide either synonyms or patterns
-       (as indicated by **type**), but not both. A pattern is a regular expression no longer than 512 characters. For
-       more information about how to specify a pattern, see the
-       [documentation](https://cloud.ibm.com/docs/services/assistant/entities.html#creating-entities).
+     - parameter newPatterns: An array of patterns for the entity value. A value can specify either synonyms or
+       patterns (depending on the value type), but not both. A pattern is a regular expression no longer than 512
+       characters. For more information about how to specify a pattern, see the
+       [documentation](https://cloud.ibm.com/docs/services/assistant/entities.html#entities-create-dictionary-based).
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
@@ -2295,7 +2302,7 @@ public class Assistant {
         value: String,
         newValue: String? = nil,
         newMetadata: [String: JSON]? = nil,
-        newType: String? = nil,
+        newValueType: String? = nil,
         newSynonyms: [String]? = nil,
         newPatterns: [String]? = nil,
         headers: [String: String]? = nil,
@@ -2305,10 +2312,10 @@ public class Assistant {
         let updateValueRequest = UpdateValue(
             value: newValue,
             metadata: newMetadata,
-            valueType: newType,
+            valueType: newValueType,
             synonyms: newSynonyms,
             patterns: newPatterns)
-        guard let body = try? JSONEncoder().encode(updateValueRequest) else {
+        guard let body = try? JSON.encoder.encode(updateValueRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -2485,7 +2492,7 @@ public class Assistant {
     }
 
     /**
-     Add entity value synonym.
+     Create entity value synonym.
 
      Add a new synonym to an entity value.
      This operation is limited to 1000 requests per 30 minutes. For more information, see **Rate limiting**.
@@ -2509,9 +2516,9 @@ public class Assistant {
         completionHandler: @escaping (WatsonResponse<Synonym>?, WatsonError?) -> Void)
     {
         // construct body
-        let createSynonymRequest = CreateSynonym(
+        let createSynonymRequest = Synonym(
             synonym: synonym)
-        guard let body = try? JSONEncoder().encode(createSynonymRequest) else {
+        guard let body = try? JSON.encoder.encode(createSynonymRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -2641,7 +2648,7 @@ public class Assistant {
         // construct body
         let updateSynonymRequest = UpdateSynonym(
             synonym: newSynonym)
-        guard let body = try? JSONEncoder().encode(updateSynonymRequest) else {
+        guard let body = try? JSON.encoder.encode(updateSynonymRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -2829,14 +2836,15 @@ public class Assistant {
        or tab characters, and it must be no longer than 128 characters.
      - parameter conditions: The condition that will trigger the dialog node. This string cannot contain carriage
        return, newline, or tab characters, and it must be no longer than 2048 characters.
-     - parameter parent: The ID of the parent dialog node.
-     - parameter previousSibling: The ID of the previous dialog node.
+     - parameter parent: The ID of the parent dialog node. This property is omitted if the dialog node has no parent.
+     - parameter previousSibling: The ID of the previous sibling dialog node. This property is omitted if the dialog
+       node has no previous sibling.
      - parameter output: The output of the dialog node. For more information about how to specify dialog node output,
-       see the [documentation](https://cloud.ibm.com/docs/services/assistant/dialog-overview.html#complex).
+       see the
+       [documentation](https://cloud.ibm.com/docs/services/assistant/dialog-overview.html#dialog-overview-responses).
      - parameter context: The context for the dialog node.
      - parameter metadata: The metadata for the dialog node.
      - parameter nextStep: The next step to execute following this dialog node.
-     - parameter actions: An array of objects describing any actions to be invoked by the dialog node.
      - parameter title: The alias used to identify the dialog node. This string must conform to the following
        restrictions:
        - It can contain only Unicode alphanumeric, space, underscore, hyphen, and dot characters.
@@ -2844,6 +2852,7 @@ public class Assistant {
      - parameter nodeType: How the dialog node is processed.
      - parameter eventName: How an `event_handler` node is processed.
      - parameter variable: The location in the dialog context where output is stored.
+     - parameter actions: An array of objects describing any actions to be invoked by the dialog node.
      - parameter digressIn: Whether this top-level dialog node can be digressed into.
      - parameter digressOut: Whether this dialog node can be returned to after a digression.
      - parameter digressOutSlots: Whether the user can digress to top-level nodes while filling out slots.
@@ -2863,11 +2872,11 @@ public class Assistant {
         context: [String: JSON]? = nil,
         metadata: [String: JSON]? = nil,
         nextStep: DialogNodeNextStep? = nil,
-        actions: [DialogNodeAction]? = nil,
         title: String? = nil,
         nodeType: String? = nil,
         eventName: String? = nil,
         variable: String? = nil,
+        actions: [DialogNodeAction]? = nil,
         digressIn: String? = nil,
         digressOut: String? = nil,
         digressOutSlots: String? = nil,
@@ -2876,7 +2885,7 @@ public class Assistant {
         completionHandler: @escaping (WatsonResponse<DialogNode>?, WatsonError?) -> Void)
     {
         // construct body
-        let createDialogNodeRequest = CreateDialogNode(
+        let createDialogNodeRequest = DialogNode(
             dialogNode: dialogNode,
             description: description,
             conditions: conditions,
@@ -2886,16 +2895,16 @@ public class Assistant {
             context: context,
             metadata: metadata,
             nextStep: nextStep,
-            actions: actions,
             title: title,
             nodeType: nodeType,
             eventName: eventName,
             variable: variable,
+            actions: actions,
             digressIn: digressIn,
             digressOut: digressOut,
             digressOutSlots: digressOutSlots,
             userLabel: userLabel)
-        guard let body = try? JSONEncoder().encode(createDialogNodeRequest) else {
+        guard let body = try? JSON.encoder.encode(createDialogNodeRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -3007,10 +3016,13 @@ public class Assistant {
        newline, or tab characters, and it must be no longer than 128 characters.
      - parameter newConditions: The condition that will trigger the dialog node. This string cannot contain carriage
        return, newline, or tab characters, and it must be no longer than 2048 characters.
-     - parameter newParent: The ID of the parent dialog node.
-     - parameter newPreviousSibling: The ID of the previous sibling dialog node.
+     - parameter newParent: The ID of the parent dialog node. This property is omitted if the dialog node has no
+       parent.
+     - parameter newPreviousSibling: The ID of the previous sibling dialog node. This property is omitted if the
+       dialog node has no previous sibling.
      - parameter newOutput: The output of the dialog node. For more information about how to specify dialog node
-       output, see the [documentation](https://cloud.ibm.com/docs/services/assistant/dialog-overview.html#complex).
+       output, see the
+       [documentation](https://cloud.ibm.com/docs/services/assistant/dialog-overview.html#dialog-overview-responses).
      - parameter newContext: The context for the dialog node.
      - parameter newMetadata: The metadata for the dialog node.
      - parameter newNextStep: The next step to execute following this dialog node.
@@ -3018,7 +3030,7 @@ public class Assistant {
        restrictions:
        - It can contain only Unicode alphanumeric, space, underscore, hyphen, and dot characters.
        - It must be no longer than 64 characters.
-     - parameter newType: How the dialog node is processed.
+     - parameter newNodeType: How the dialog node is processed.
      - parameter newEventName: How an `event_handler` node is processed.
      - parameter newVariable: The location in the dialog context where output is stored.
      - parameter newActions: An array of objects describing any actions to be invoked by the dialog node.
@@ -3043,7 +3055,7 @@ public class Assistant {
         newMetadata: [String: JSON]? = nil,
         newNextStep: DialogNodeNextStep? = nil,
         newTitle: String? = nil,
-        newType: String? = nil,
+        newNodeType: String? = nil,
         newEventName: String? = nil,
         newVariable: String? = nil,
         newActions: [DialogNodeAction]? = nil,
@@ -3066,7 +3078,7 @@ public class Assistant {
             metadata: newMetadata,
             nextStep: newNextStep,
             title: newTitle,
-            nodeType: newType,
+            nodeType: newNodeType,
             eventName: newEventName,
             variable: newVariable,
             actions: newActions,
@@ -3074,7 +3086,7 @@ public class Assistant {
             digressOut: newDigressOut,
             digressOutSlots: newDigressOutSlots,
             userLabel: newUserLabel)
-        guard let body = try? JSONEncoder().encode(updateDialogNodeRequest) else {
+        guard let body = try? JSON.encoder.encode(updateDialogNodeRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -3176,7 +3188,7 @@ public class Assistant {
        order, prefix the parameter value with a minus sign (`-`).
      - parameter filter: A cacheable parameter that limits the results to those matching the specified filter. For
        more information, see the
-       [documentation](https://cloud.ibm.com/docs/services/assistant/filter-reference.html#filter-query-syntax).
+       [documentation](https://cloud.ibm.com/docs/services/assistant/filter-reference.html#filter-reference-syntax).
      - parameter pageLimit: The number of records to return in each page of results.
      - parameter cursor: A token identifying the page of results to retrieve.
      - parameter headers: A dictionary of request headers to be sent with this request.
@@ -3250,7 +3262,7 @@ public class Assistant {
      - parameter filter: A cacheable parameter that limits the results to those matching the specified filter. You
        must specify a filter query that includes a value for `language`, as well as a value for `workspace_id` or
        `request.context.metadata.deployment`. For more information, see the
-       [documentation](https://cloud.ibm.com/docs/services/assistant/filter-reference.html#filter-query-syntax).
+       [documentation](https://cloud.ibm.com/docs/services/assistant/filter-reference.html#filter-reference-syntax).
      - parameter sort: How to sort the returned log events. You can sort by **request_timestamp**. To reverse the sort
        order, prefix the parameter value with a minus sign (`-`).
      - parameter pageLimit: The number of records to return in each page of results.

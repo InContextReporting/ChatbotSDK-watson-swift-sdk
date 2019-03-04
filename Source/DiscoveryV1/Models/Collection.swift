@@ -71,10 +71,6 @@ public struct Collection: Codable, Equatable {
      */
     public var language: String?
 
-    /**
-     The object providing information about the documents in the collection. Present only when retrieving details of a
-     collection.
-     */
     public var documentCounts: DocumentCounts?
 
     /**
@@ -82,9 +78,6 @@ public struct Collection: Codable, Equatable {
      */
     public var diskUsage: CollectionDiskUsage?
 
-    /**
-     Provides information about the status of relevance training for collection.
-     */
     public var trainingStatus: TrainingStatus?
 
     /**

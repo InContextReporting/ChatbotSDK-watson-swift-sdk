@@ -22,6 +22,9 @@ import Foundation
  */
 public struct LogQueryResponseResultDocuments: Codable, Equatable {
 
+    /**
+     Array of log query response results.
+     */
     public var results: [LogQueryResponseResultDocumentsResult]?
 
     /**

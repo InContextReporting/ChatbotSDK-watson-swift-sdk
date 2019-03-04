@@ -124,9 +124,6 @@ public class TextToSpeech {
             if case let .some(.string(message)) = json["error"] {
                 errorMessage = message
             }
-            if case let .some(.string(description)) = json["code_description"] {
-                metadata["codeDescription"] = description
-            }
             // If metadata is empty, it should show up as nil in the WatsonError
             return WatsonError.http(statusCode: statusCode, message: errorMessage, metadata: !metadata.isEmpty ? metadata : nil)
         } catch {
@@ -139,7 +136,8 @@ public class TextToSpeech {
 
      Lists all voices available for use with the service. The information includes the name, language, gender, and other
      details about the voice. To see information about a specific voice, use the **Get a voice** method.
-     **See also:** [Specifying a voice](https://cloud.ibm.com/docs/services/text-to-speech/http.html#voices).
+     **See also:** [Listing all available
+     voices](https://cloud.ibm.com/docs/services/text-to-speech/voices.html#listVoices).
 
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
@@ -177,7 +175,7 @@ public class TextToSpeech {
      Gets information about the specified voice. The information includes the name, language, gender, and other details
      about the voice. Specify a customization ID to obtain information for that custom voice model of the specified
      voice. To list information about all available voices, use the **List voices** method.
-     **See also:** [Specifying a voice](https://cloud.ibm.com/docs/services/text-to-speech/http.html#voices).
+     **See also:** [Listing a specific voice](https://cloud.ibm.com/docs/services/text-to-speech/voices.html#listVoice).
 
      - parameter voice: The voice for which information is to be returned.
      - parameter customizationID: The customization ID (GUID) of a custom voice model for which information is to be
@@ -235,8 +233,7 @@ public class TextToSpeech {
      language for the input text on the specified voice. Use a voice that matches the language of the input text.
      The service returns the synthesized audio stream as an array of bytes. You can pass a maximum of 5 KB of text to
      the service.
-     **See also:** [Synthesizing text to
-     audio](https://cloud.ibm.com/docs/services/text-to-speech/http.html#synthesize).
+     **See also:** [The HTTP interface](https://cloud.ibm.com/docs/services/text-to-speech/http.html).
      ### Audio formats (accept types)
       The service can return audio in the following formats (MIME types).
      * Where indicated, you can optionally specify the sampling rate (`rate`) of the audio. You must specify a sampling
@@ -276,7 +273,7 @@ public class TextToSpeech {
      * `audio/webm;codecs=vorbis`
        You can optionally specify the `rate` of the audio. The default sampling rate is 22,050 Hz.
      For more information about specifying an audio format, including additional details about some of the formats, see
-     [Specifying an audio format](https://cloud.ibm.com/docs/services/text-to-speech/http.html#format).
+     [Audio formats](https://cloud.ibm.com/docs/services/text-to-speech/audio-formats.html).
      ### Warning messages
       If a request includes invalid query parameters, the service returns a `Warnings` response header that provides
      messages about the invalid parameters. The warning includes a descriptive message and a list of invalid argument
@@ -284,30 +281,30 @@ public class TextToSpeech {
      a list of the form `\"{invalid_arg_1}, {invalid_arg_2}.\"` The request succeeds despite the warnings.
 
      - parameter text: The text to synthesize.
-     - parameter accept: The requested format (MIME type) of the audio. You can use the `Accept` header or the
-       `accept` parameter to specify the audio format. For more information about specifying an audio format, see
-       **Audio formats (accept types)** in the method description.
-       Default: `audio/ogg;codecs=opus`.
      - parameter voice: The voice to use for synthesis.
      - parameter customizationID: The customization ID (GUID) of a custom voice model to use for the synthesis. If a
        custom voice model is specified, it is guaranteed to work only if it matches the language of the indicated voice.
        You must make the request with service credentials created for the instance of the service that owns the custom
        model. Omit the parameter to use the specified voice with no customization.
+     - parameter accept: The requested format (MIME type) of the audio. You can use the `Accept` header or the
+       `accept` parameter to specify the audio format. For more information about specifying an audio format, see
+       **Audio formats (accept types)** in the method description.
+       Default: `audio/ogg;codecs=opus`.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func synthesize(
         text: String,
-        accept: String? = nil,
         voice: String? = nil,
         customizationID: String? = nil,
+        accept: String? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Data>?, WatsonError?) -> Void)
     {
         // construct body
         let synthesizeRequest = Text(
             text: text)
-        guard let body = try? JSONEncoder().encode(synthesizeRequest) else {
+        guard let body = try? JSON.encoder.encode(synthesizeRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -348,37 +345,7 @@ public class TextToSpeech {
         )
 
         // execute REST request
-        request.response { (response: WatsonResponse<Data>?, error: WatsonError?) in
-            var response = response
-            guard let data = response?.result else {
-                completionHandler(response, error)
-                return
-            }
-            if accept?.lowercased().contains("audio/wav") == true {
-                // repair the WAV header
-                var wav = data
-                guard WAVRepair.isWAVFile(data: wav) else {
-                    let error = WatsonError.other(message: "Expected returned audio to be in WAV format")
-                    completionHandler(nil, error)
-                    return
-                }
-                WAVRepair.repairWAVHeader(data: &wav)
-                response?.result = wav
-                completionHandler(response, nil)
-            } else if accept?.lowercased().contains("ogg") == true && accept?.lowercased().contains("opus") == true {
-                do {
-                    let decodedAudio = try TextToSpeechDecoder(audioData: data)
-                    response?.result = decodedAudio.pcmDataWithHeaders
-                    completionHandler(response, nil)
-                } catch {
-                    let error = WatsonError.serialization(values: "returned audio")
-                    completionHandler(nil, error)
-                    return
-                }
-            } else {
-                completionHandler(response, nil)
-            }
-        }
+        request.responseObject(completionHandler: completionHandler)
     }
 
     /**
@@ -481,7 +448,7 @@ public class TextToSpeech {
             name: name,
             language: language,
             description: description)
-        guard let body = try? JSONEncoder().encode(createVoiceModelRequest) else {
+        guard let body = try? JSON.encoder.encode(createVoiceModelRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -607,7 +574,7 @@ public class TextToSpeech {
             name: name,
             description: description,
             words: words)
-        guard let body = try? JSONEncoder().encode(updateVoiceModelRequest) else {
+        guard let body = try? JSON.encoder.encode(updateVoiceModelRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -716,6 +683,7 @@ public class TextToSpeech {
         }
         let metadataHeaders = Shared.getMetadataHeaders(serviceName: serviceName, serviceVersion: serviceVersion, methodName: "deleteVoiceModel")
         headerParameters.merge(metadataHeaders) { (_, new) in new }
+        headerParameters["Accept"] = ""
 
         // construct REST request
         let path = "/v1/customizations/\(customizationID)"
@@ -776,7 +744,7 @@ public class TextToSpeech {
         // construct body
         let addWordsRequest = Words(
             words: words)
-        guard let body = try? JSONEncoder().encode(addWordsRequest) else {
+        guard let body = try? JSON.encoder.encode(addWordsRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -906,7 +874,7 @@ public class TextToSpeech {
         let addWordRequest = Translation(
             translation: translation,
             partOfSpeech: partOfSpeech)
-        guard let body = try? JSONEncoder().encode(addWordRequest) else {
+        guard let body = try? JSON.encoder.encode(addWordRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -918,6 +886,7 @@ public class TextToSpeech {
         }
         let metadataHeaders = Shared.getMetadataHeaders(serviceName: serviceName, serviceVersion: serviceVersion, methodName: "addWord")
         headerParameters.merge(metadataHeaders) { (_, new) in new }
+        headerParameters["Accept"] = ""
         headerParameters["Content-Type"] = "application/json"
 
         // construct REST request
@@ -1017,6 +986,7 @@ public class TextToSpeech {
         }
         let metadataHeaders = Shared.getMetadataHeaders(serviceName: serviceName, serviceVersion: serviceVersion, methodName: "deleteWord")
         headerParameters.merge(metadataHeaders) { (_, new) in new }
+        headerParameters["Accept"] = ""
 
         // construct REST request
         let path = "/v1/customizations/\(customizationID)/words/\(word)"
@@ -1064,6 +1034,7 @@ public class TextToSpeech {
         }
         let metadataHeaders = Shared.getMetadataHeaders(serviceName: serviceName, serviceVersion: serviceVersion, methodName: "deleteUserData")
         headerParameters.merge(metadataHeaders) { (_, new) in new }
+        headerParameters["Accept"] = ""
 
         // construct query parameters
         var queryParameters = [URLQueryItem]()

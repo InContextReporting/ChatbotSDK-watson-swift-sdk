@@ -19,6 +19,9 @@ import Foundation
 /** QueryRelationsResponse. */
 public struct QueryRelationsResponse: Codable, Equatable {
 
+    /**
+     Array of relationships for the relations query.
+     */
     public var relations: [QueryRelationsRelationship]?
 
     // Map each property name to the key that shall be used for encoding/decoding.

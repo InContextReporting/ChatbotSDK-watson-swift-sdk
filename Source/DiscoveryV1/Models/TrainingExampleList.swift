@@ -19,6 +19,9 @@ import Foundation
 /** TrainingExampleList. */
 public struct TrainingExampleList: Codable, Equatable {
 
+    /**
+     Array of training examples.
+     */
     public var examples: [TrainingExample]?
 
     // Map each property name to the key that shall be used for encoding/decoding.

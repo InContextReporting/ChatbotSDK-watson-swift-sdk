@@ -115,9 +115,6 @@ public class NaturalLanguageClassifier {
             if case let .some(.string(message)) = json["error"] {
                 errorMessage = message
             }
-            if case let .some(.string(description)) = json["description"] {
-                metadata["description"] = description
-            }
             // If metadata is empty, it should show up as nil in the WatsonError
             return WatsonError.http(statusCode: statusCode, message: errorMessage, metadata: !metadata.isEmpty ? metadata : nil)
         } catch {
@@ -145,7 +142,7 @@ public class NaturalLanguageClassifier {
         // construct body
         let classifyRequest = ClassifyInput(
             text: text)
-        guard let body = try? JSONEncoder().encode(classifyRequest) else {
+        guard let body = try? JSON.encoder.encode(classifyRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -201,7 +198,7 @@ public class NaturalLanguageClassifier {
         // construct body
         let classifyCollectionRequest = ClassifyCollectionInput(
             collection: collection)
-        guard let body = try? JSONEncoder().encode(classifyCollectionRequest) else {
+        guard let body = try? JSON.encoder.encode(classifyCollectionRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -253,25 +250,15 @@ public class NaturalLanguageClassifier {
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func createClassifier(
-        metadata: URL,
-        trainingData: URL,
+        metadata: Data,
+        trainingData: Data,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Classifier>?, WatsonError?) -> Void)
     {
         // construct body
         let multipartFormData = MultipartFormData()
-        do {
-            try multipartFormData.append(file: metadata, withName: "training_metadata")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(metadata.path)"))
-            return
-        }
-        do {
-            try multipartFormData.append(file: trainingData, withName: "training_data")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(trainingData.path)"))
-            return
-        }
+        multipartFormData.append(metadata, withName: "training_metadata")
+        multipartFormData.append(trainingData, withName: "training_data")
         guard let body = try? multipartFormData.toData() else {
             completionHandler(nil, WatsonError.serialization(values: "request multipart form data"))
             return

@@ -15,6 +15,7 @@
  **/
 
 import Foundation
+import RestKit
 
 /**
  JSON, plain text, or HTML input that contains the content to be analyzed. For JSON input, provide an object of type
@@ -36,7 +37,7 @@ public enum ToneContent {
 
     internal var content: Data? {
         switch self {
-        case .toneInput(let toneInput): return try? JSONEncoder().encode(toneInput)
+        case .toneInput(let toneInput): return try? JSON.encoder.encode(toneInput)
         case .text(let text): return text.data(using: .utf8)
         case .html(let html): return html.data(using: .utf8)
         }

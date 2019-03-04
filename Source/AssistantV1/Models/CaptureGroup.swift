@@ -16,7 +16,9 @@
 
 import Foundation
 
-/** CaptureGroup. */
+/**
+ A recognized capture group for a pattern-based entity.
+ */
 public struct CaptureGroup: Codable, Equatable {
 
     /**

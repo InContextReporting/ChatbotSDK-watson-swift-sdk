@@ -31,6 +31,9 @@ public struct MetricAggregation: Codable, Equatable {
      */
     public var eventType: String?
 
+    /**
+     Array of metric aggregation query results.
+     */
     public var results: [MetricAggregationResult]?
 
     // Map each property name to the key that shall be used for encoding/decoding.

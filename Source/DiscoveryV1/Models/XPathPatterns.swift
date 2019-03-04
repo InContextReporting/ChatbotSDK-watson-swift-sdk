@@ -19,6 +19,9 @@ import Foundation
 /** XPathPatterns. */
 public struct XPathPatterns: Codable, Equatable {
 
+    /**
+     An array to XPaths.
+     */
     public var xpaths: [String]?
 
     // Map each property name to the key that shall be used for encoding/decoding.
@@ -29,7 +32,7 @@ public struct XPathPatterns: Codable, Equatable {
     /**
      Initialize a `XPathPatterns` with member variables.
 
-     - parameter xpaths:
+     - parameter xpaths: An array to XPaths.
 
      - returns: An initialized `XPathPatterns`.
     */

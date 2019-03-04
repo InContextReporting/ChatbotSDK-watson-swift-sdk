@@ -16,41 +16,25 @@
 
 import Foundation
 
-/** IntentExport. */
-public struct IntentExport: Codable, Equatable {
+/**
+ Tokenization options.
+ */
+public struct SyntaxOptionsTokens: Codable, Equatable {
 
     /**
-     The name of the intent.
+     Set this to `true` to return the lemma for each token.
      */
-    public var intentName: String
+    public var lemma: Bool?
 
     /**
-     The timestamp for creation of the intent.
+     Set this to `true` to return the part of speech for each token.
      */
-    public var created: Date?
-
-    /**
-     The timestamp for the last update to the intent.
-     */
-    public var updated: Date?
-
-    /**
-     The description of the intent.
-     */
-    public var description: String?
-
-    /**
-     An array of objects describing the user input examples for the intent.
-     */
-    public var examples: [Example]?
+    public var partOfSpeech: Bool?
 
     // Map each property name to the key that shall be used for encoding/decoding.
     private enum CodingKeys: String, CodingKey {
-        case intentName = "intent"
-        case created = "created"
-        case updated = "updated"
-        case description = "description"
-        case examples = "examples"
+        case lemma = "lemma"
+        case partOfSpeech = "part_of_speech"
     }
 
 }

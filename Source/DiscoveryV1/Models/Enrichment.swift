@@ -47,7 +47,7 @@ public struct Enrichment: Codable, Equatable {
      options.
       When using `elements` the **options** object must contain Element Classification options. Additionally, when using
      the `elements` enrichment the configuration specified and files ingested must meet all the criteria specified in
-     [the documentation](https://cloud.ibm.com/docs/services/discovery/element-classification.html)
+     [the documentation](https://console.bluemix.net/docs/services/discovery/element-classification.html)
       Previous API versions also supported `alchemy_language`.
      */
     public var enrichmentName: String
@@ -59,7 +59,7 @@ public struct Enrichment: Codable, Equatable {
     public var ignoreDownstreamErrors: Bool?
 
     /**
-     Options which are specific to a particular enrichment.
+     An object representing the configuration options to use for the `elements` enrichment.
      */
     public var options: EnrichmentOptions?
 
@@ -87,14 +87,14 @@ public struct Enrichment: Codable, Equatable {
        options.
         When using `elements` the **options** object must contain Element Classification options. Additionally, when
        using the `elements` enrichment the configuration specified and files ingested must meet all the criteria
-       specified in [the documentation](https://cloud.ibm.com/docs/services/discovery/element-classification.html)
+       specified in [the documentation](https://console.bluemix.net/docs/services/discovery/element-classification.html)
         Previous API versions also supported `alchemy_language`.
      - parameter description: Describes what the enrichment step does.
      - parameter overwrite: Indicates that the enrichments will overwrite the destination_field field if it already
        exists.
      - parameter ignoreDownstreamErrors: If true, then most errors generated during the enrichment process will be
        treated as warnings and will not cause the document to fail processing.
-     - parameter options: Options which are specific to a particular enrichment.
+     - parameter options: An object representing the configuration options to use for the `elements` enrichment.
 
      - returns: An initialized `Enrichment`.
     */

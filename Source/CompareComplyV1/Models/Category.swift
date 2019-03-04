@@ -40,14 +40,14 @@ public struct Category: Codable, Equatable {
         case insurance = "Insurance"
         case intellectualProperty = "Intellectual Property"
         case liability = "Liability"
-        case paymentTermsAndBilling = "Payment Terms & Billing"
-        case pricingAndTaxes = "Pricing & Taxes"
+        case paymentTermsBilling = "Payment Terms & Billing"
+        case pricingTaxes = "Pricing & Taxes"
         case privacy = "Privacy"
         case responsibilities = "Responsibilities"
         case safetyAndSecurity = "Safety and Security"
         case scopeOfWork = "Scope of Work"
         case subcontracts = "Subcontracts"
-        case termAndTermination = "Term & Termination"
+        case termTermination = "Term & Termination"
         case warranties = "Warranties"
     }
 

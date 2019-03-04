@@ -22,7 +22,7 @@ public struct ValueCollection: Codable, Equatable {
     /**
      An array of entity values.
      */
-    public var values: [ValueExport]
+    public var values: [Value]
 
     /**
      The pagination data for the returned objects.

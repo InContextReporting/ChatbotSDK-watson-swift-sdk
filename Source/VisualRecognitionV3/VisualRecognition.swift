@@ -112,34 +112,8 @@ public class VisualRecognition {
         do {
             let json = try JSONDecoder().decode([String: JSON].self, from: data)
             metadata = [:]
-            switch statusCode {
-            case 403:
-                // ErrorAuthentication
-                if case let .some(.string(status)) = json["status"],
-                    case let .some(.string(statusInfo)) = json["statusInfo"] {
-                    errorMessage = statusInfo
-                    metadata["status"] = status
-                    metadata["statusInfo"] = statusInfo
-                }
-            case 404:
-                // "error": ErrorInfo
-                if case let .some(.object(errorObj)) = json["error"],
-                    case let .some(.string(message)) = errorObj["description"],
-                    case let .some(.string(errorID)) = errorObj["error_id"] {
-                    errorMessage = message
-                    metadata["description"] = message
-                    metadata["errorID"] = errorID
-                }
-            case 413:
-                // ErrorHTML
-                if case let .some(.string(message)) = json["Error"] {
-                    errorMessage = message
-                }
-            default:
-                // ErrorResponse
-                if case let .some(.string(message)) = json["error"] {
-                    errorMessage = message
-                }
+            if case let .some(.string(message)) = json["error"] {
+                errorMessage = message
             }
             // If metadata is empty, it should show up as nil in the WatsonError
             return WatsonError.http(statusCode: statusCode, message: errorMessage, metadata: !metadata.isEmpty ? metadata : nil)
@@ -158,7 +132,6 @@ public class VisualRecognition {
        UTF-8 if they contain non-ASCII characters. The service assumes UTF-8 encoding if it encounters non-ASCII
        characters.
        You can also include an image with the **url** parameter.
-     - parameter acceptLanguage: The desired language of parts of the response. See the response for details.
      - parameter url: The URL of an image (.gif, .jpg, .png, .tif) to analyze. The minimum recommended pixel density
        is 32X32 pixels, but the service tends to perform better with images that are at least 224 x 224 pixels. The
        maximum image size is 10 MB.
@@ -179,17 +152,18 @@ public class VisualRecognition {
        - `default`: Returns classes from thousands of general tags.
        - `food`: Enhances specificity and accuracy for images of food items.
        - `explicit`: Evaluates whether the image might be pornographic.
+     - parameter acceptLanguage: The desired language of parts of the response. See the response for details.
      - parameter imagesFileContentType: The content type of imagesFile.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func classify(
-        imagesFile: URL? = nil,
-        acceptLanguage: String? = nil,
+        imagesFile: Data? = nil,
         url: String? = nil,
         threshold: Double? = nil,
         owners: [String]? = nil,
         classifierIDs: [String]? = nil,
+        acceptLanguage: String? = nil,
         imagesFileContentType: String? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<ClassifiedImages>?, WatsonError?) -> Void)
@@ -197,12 +171,7 @@ public class VisualRecognition {
         // construct body
         let multipartFormData = MultipartFormData()
         if let imagesFile = imagesFile {
-            do {
-                try multipartFormData.append(file: imagesFile, withName: "images_file")
-            } catch {
-                completionHandler(nil, WatsonError.serialization(values: "file \(imagesFile.path)"))
-                return
-            }
+            multipartFormData.append(imagesFile, withName: "images_file")
         }
         if let url = url {
             if let urlData = url.data(using: .utf8) {
@@ -291,7 +260,7 @@ public class VisualRecognition {
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func detectFaces(
-        imagesFile: URL? = nil,
+        imagesFile: Data? = nil,
         url: String? = nil,
         acceptLanguage: String? = nil,
         imagesFileContentType: String? = nil,
@@ -301,12 +270,7 @@ public class VisualRecognition {
         // construct body
         let multipartFormData = MultipartFormData()
         if let imagesFile = imagesFile {
-            do {
-                try multipartFormData.append(file: imagesFile, withName: "images_file")
-            } catch {
-                completionHandler(nil, WatsonError.serialization(values: "file \(imagesFile.path)"))
-                return
-            }
+            multipartFormData.append(imagesFile, withName: "images_file")
         }
         if let url = url {
             if let urlData = url.data(using: .utf8) {
@@ -361,7 +325,7 @@ public class VisualRecognition {
      names). The service assumes UTF-8 encoding if it encounters non-ASCII characters.
 
      - parameter name: The name of the new classifier. Encode special characters in UTF-8.
-     - parameter positiveExamples: A dictionary that contains the value for each classname. The value are a .zip file
+     - parameter positiveExamples: A dictionary that contains the value for each classname. The value is a .zip file
        of images that depict the visual subject of a class in the new classifier. You can include more than one positive
        example file in a call.
        Specify the parameter name by appending `_positive_examples` to the class name. For example,
@@ -377,8 +341,8 @@ public class VisualRecognition {
      */
     public func createClassifier(
         name: String,
-        positiveExamples: [String: URL],
-        negativeExamples: URL? = nil,
+        positiveExamples: [String: Data],
+        negativeExamples: Data? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Classifier>?, WatsonError?) -> Void)
     {
@@ -389,20 +353,10 @@ public class VisualRecognition {
         }
         positiveExamples.forEach { (classname, value) in
             let partName = "\(classname)_positive_examples"
-            do {
-                try multipartFormData.append(file: value, withName: partName)
-            } catch {
-                completionHandler(nil, WatsonError.serialization(values: "file \(value)"))
-                return
-            }
+            multipartFormData.append(value, withName: partName)
         }
         if let negativeExamples = negativeExamples {
-            do {
-                try multipartFormData.append(file: negativeExamples, withName: "negative_examples")
-            } catch {
-                completionHandler(nil, WatsonError.serialization(values: "file \(negativeExamples.path)"))
-                return
-            }
+            multipartFormData.append(negativeExamples, withName: "negative_examples")
         }
         guard let body = try? multipartFormData.toData() else {
             completionHandler(nil, WatsonError.serialization(values: "request multipart form data"))
@@ -544,7 +498,7 @@ public class VisualRecognition {
      classifier retraining finished.
 
      - parameter classifierID: The ID of the classifier.
-     - parameter positiveExamples: A dictionary that contains the value for each classname. The value are a .zip file
+     - parameter positiveExamples: A dictionary that contains the value for each classname. The value is a .zip file
        of images that depict the visual subject of a class in the classifier. The positive examples create or update
        classes in the classifier. You can include more than one positive example file in a call.
        Specify the parameter name by appending `_positive_examples` to the class name. For example,
@@ -560,8 +514,8 @@ public class VisualRecognition {
      */
     public func updateClassifier(
         classifierID: String,
-        positiveExamples: [String: URL]? = nil,
-        negativeExamples: URL? = nil,
+        positiveExamples: [String: Data]? = nil,
+        negativeExamples: Data? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<Classifier>?, WatsonError?) -> Void)
     {
@@ -570,21 +524,11 @@ public class VisualRecognition {
         if let positiveExamples = positiveExamples {
             positiveExamples.forEach { (classname, value) in
                 let partName = "\(classname)_positive_examples"
-                do {
-                    try multipartFormData.append(file: value, withName: partName)
-                } catch {
-                    completionHandler(nil, WatsonError.serialization(values: "file \(value)"))
-                    return
-                }
+                multipartFormData.append(value, withName: partName)
             }
         }
         if let negativeExamples = negativeExamples {
-            do {
-                try multipartFormData.append(file: negativeExamples, withName: "negative_examples")
-            } catch {
-                completionHandler(nil, WatsonError.serialization(values: "file \(negativeExamples.path)"))
-                return
-            }
+            multipartFormData.append(negativeExamples, withName: "negative_examples")
         }
         guard let body = try? multipartFormData.toData() else {
             completionHandler(nil, WatsonError.serialization(values: "request multipart form data"))
@@ -716,7 +660,7 @@ public class VisualRecognition {
         )
 
         // execute REST request
-        request.response(completionHandler: completionHandler)
+        request.responseObject(completionHandler: completionHandler)
     }
 
     /**

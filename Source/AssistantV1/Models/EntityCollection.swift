@@ -17,14 +17,14 @@
 import Foundation
 
 /**
- An array of entities.
+ An array of objects describing the entities for the workspace.
  */
 public struct EntityCollection: Codable, Equatable {
 
     /**
      An array of objects describing the entities defined for the workspace.
      */
-    public var entities: [EntityExport]
+    public var entities: [Entity]
 
     /**
      The pagination data for the returned objects.

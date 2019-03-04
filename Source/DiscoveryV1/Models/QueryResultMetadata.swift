@@ -25,7 +25,7 @@ public struct QueryResultMetadata: Codable, Equatable {
      An unbounded measure of the relevance of a particular result, dependent on the query and matching document. A
      higher score indicates a greater match to the query parameters.
      */
-    public var score: Double?
+    public var score: Double
 
     /**
      The confidence score for the given result. Calculated based on how relevant the result is estimated to be.
@@ -33,7 +33,7 @@ public struct QueryResultMetadata: Codable, Equatable {
      value for a result was calculated using the model specified in the `document_retrieval_strategy` field of the
      result set.
      */
-    public var confidence: Double?
+    public var confidence: Double
 
     // Map each property name to the key that shall be used for encoding/decoding.
     private enum CodingKeys: String, CodingKey {

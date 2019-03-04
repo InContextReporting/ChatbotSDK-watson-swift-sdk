@@ -22,7 +22,7 @@ public struct LogCollection: Codable, Equatable {
     /**
      An array of objects describing log events.
      */
-    public var logs: [LogExport]
+    public var logs: [Log]
 
     /**
      The pagination data for the returned objects.

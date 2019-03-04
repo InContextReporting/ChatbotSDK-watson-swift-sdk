@@ -19,10 +19,19 @@ import Foundation
 /** TrainingExample. */
 public struct TrainingExample: Codable, Equatable {
 
+    /**
+     The document ID associated with this training example.
+     */
     public var documentID: String?
 
+    /**
+     The cross reference associated with this training example.
+     */
     public var crossReference: String?
 
+    /**
+     The relevance of the training example.
+     */
     public var relevance: Int?
 
     // Map each property name to the key that shall be used for encoding/decoding.
@@ -35,9 +44,9 @@ public struct TrainingExample: Codable, Equatable {
     /**
      Initialize a `TrainingExample` with member variables.
 
-     - parameter documentID:
-     - parameter crossReference:
-     - parameter relevance:
+     - parameter documentID: The document ID associated with this training example.
+     - parameter crossReference: The cross reference associated with this training example.
+     - parameter relevance: The relevance of the training example.
 
      - returns: An initialized `TrainingExample`.
     */

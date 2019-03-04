@@ -21,6 +21,9 @@ import Foundation
  */
 public struct MetricTokenResponse: Codable, Equatable {
 
+    /**
+     Array of metric token aggregations.
+     */
     public var aggregations: [MetricTokenAggregation]?
 
     // Map each property name to the key that shall be used for encoding/decoding.

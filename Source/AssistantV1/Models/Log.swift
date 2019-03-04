@@ -16,8 +16,8 @@
 
 import Foundation
 
-/** LogExport. */
-public struct LogExport: Codable, Equatable {
+/** Log. */
+public struct Log: Codable, Equatable {
 
     /**
      A request sent to the workspace, including the user input and context.

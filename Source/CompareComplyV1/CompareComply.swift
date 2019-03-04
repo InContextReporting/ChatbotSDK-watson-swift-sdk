@@ -135,7 +135,7 @@ public class CompareComply {
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func convertToHTML(
-        file: URL,
+        file: Data,
         modelID: String? = nil,
         fileContentType: String? = nil,
         headers: [String: String]? = nil,
@@ -143,12 +143,7 @@ public class CompareComply {
     {
         // construct body
         let multipartFormData = MultipartFormData()
-        do {
-            try multipartFormData.append(file: file, withName: "file")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(file.path)"))
-            return
-        }
+        multipartFormData.append(file, withName: "file")
         guard let body = try? multipartFormData.toData() else {
             completionHandler(nil, WatsonError.serialization(values: "request multipart form data"))
             return
@@ -202,7 +197,7 @@ public class CompareComply {
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func classifyElements(
-        file: URL,
+        file: Data,
         modelID: String? = nil,
         fileContentType: String? = nil,
         headers: [String: String]? = nil,
@@ -210,12 +205,7 @@ public class CompareComply {
     {
         // construct body
         let multipartFormData = MultipartFormData()
-        do {
-            try multipartFormData.append(file: file, withName: "file")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(file.path)"))
-            return
-        }
+        multipartFormData.append(file, withName: "file")
         guard let body = try? multipartFormData.toData() else {
             completionHandler(nil, WatsonError.serialization(values: "request multipart form data"))
             return
@@ -269,7 +259,7 @@ public class CompareComply {
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func extractTables(
-        file: URL,
+        file: Data,
         modelID: String? = nil,
         fileContentType: String? = nil,
         headers: [String: String]? = nil,
@@ -277,12 +267,7 @@ public class CompareComply {
     {
         // construct body
         let multipartFormData = MultipartFormData()
-        do {
-            try multipartFormData.append(file: file, withName: "file")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(file.path)"))
-            return
-        }
+        multipartFormData.append(file, withName: "file")
         guard let body = try? multipartFormData.toData() else {
             completionHandler(nil, WatsonError.serialization(values: "request multipart form data"))
             return
@@ -340,8 +325,8 @@ public class CompareComply {
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func compareDocuments(
-        file1: URL,
-        file2: URL,
+        file1: Data,
+        file2: Data,
         file1Label: String? = nil,
         file2Label: String? = nil,
         modelID: String? = nil,
@@ -352,18 +337,8 @@ public class CompareComply {
     {
         // construct body
         let multipartFormData = MultipartFormData()
-        do {
-            try multipartFormData.append(file: file1, withName: "file_1")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(file1.path)"))
-            return
-        }
-        do {
-            try multipartFormData.append(file: file2, withName: "file_2")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(file2.path)"))
-            return
-        }
+        multipartFormData.append(file1, withName: "file_1")
+        multipartFormData.append(file2, withName: "file_2")
         guard let body = try? multipartFormData.toData() else {
             completionHandler(nil, WatsonError.serialization(values: "request multipart form data"))
             return
@@ -436,7 +411,7 @@ public class CompareComply {
             feedbackData: feedbackData,
             userID: userID,
             comment: comment)
-        guard let body = try? JSONEncoder().encode(addFeedbackRequest) else {
+        guard let body = try? JSON.encoder.encode(addFeedbackRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -764,10 +739,10 @@ public class CompareComply {
      */
     public func createBatch(
         function: String,
-        inputCredentialsFile: URL,
+        inputCredentialsFile: Data,
         inputBucketLocation: String,
         inputBucketName: String,
-        outputCredentialsFile: URL,
+        outputCredentialsFile: Data,
         outputBucketLocation: String,
         outputBucketName: String,
         modelID: String? = nil,
@@ -776,24 +751,14 @@ public class CompareComply {
     {
         // construct body
         let multipartFormData = MultipartFormData()
-        do {
-            try multipartFormData.append(file: inputCredentialsFile, withName: "input_credentials_file")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(inputCredentialsFile.path)"))
-            return
-        }
+        multipartFormData.append(inputCredentialsFile, withName: "input_credentials_file")
         if let inputBucketLocationData = inputBucketLocation.data(using: .utf8) {
             multipartFormData.append(inputBucketLocationData, withName: "input_bucket_location")
         }
         if let inputBucketNameData = inputBucketName.data(using: .utf8) {
             multipartFormData.append(inputBucketNameData, withName: "input_bucket_name")
         }
-        do {
-            try multipartFormData.append(file: outputCredentialsFile, withName: "output_credentials_file")
-        } catch {
-            completionHandler(nil, WatsonError.serialization(values: "file \(outputCredentialsFile.path)"))
-            return
-        }
+        multipartFormData.append(outputCredentialsFile, withName: "output_credentials_file")
         if let outputBucketLocationData = outputBucketLocation.data(using: .utf8) {
             multipartFormData.append(outputBucketLocationData, withName: "output_bucket_location")
         }

@@ -130,9 +130,6 @@ public class NaturalLanguageUnderstanding {
             if case let .some(.string(message)) = json["error"] {
                 errorMessage = message
             }
-            if case let .some(.string(description)) = json["description"] {
-                metadata["description"] = description
-            }
             // If metadata is empty, it should show up as nil in the WatsonError
             return WatsonError.http(statusCode: statusCode, message: errorMessage, metadata: !metadata.isEmpty ? metadata : nil)
         } catch {
@@ -154,7 +151,7 @@ public class NaturalLanguageUnderstanding {
      - Semantic roles
      - Sentiment.
 
-     - parameter features: Analysis features and options.
+     - parameter features: Specific features to analyze the document for.
      - parameter text: The plain text to analyze. One of the `text`, `html`, or `url` parameters is required.
      - parameter html: The HTML file to analyze. One of the `text`, `html`, or `url` parameters is required.
      - parameter url: The webpage to analyze. One of the `text`, `html`, or `url` parameters is required.
@@ -169,7 +166,7 @@ public class NaturalLanguageUnderstanding {
      - parameter returnAnalyzedText: Whether or not to return the analyzed text.
      - parameter language: ISO 639-1 code that specifies the language of your text. This overrides automatic language
        detection. Language support differs depending on the features you include in your analysis. See [Language
-       support](https://cloud.ibm.com/docs/services/natural-language-understanding/language-support.html) for more
+       support](https://www.bluemix.net/docs/services/natural-language-understanding/language-support.html) for more
        information.
      - parameter limitTextCharacters: Sets the maximum number of characters that are processed by the service.
      - parameter headers: A dictionary of request headers to be sent with this request.
@@ -201,7 +198,7 @@ public class NaturalLanguageUnderstanding {
             returnAnalyzedText: returnAnalyzedText,
             language: language,
             limitTextCharacters: limitTextCharacters)
-        guard let body = try? JSONEncoder().encode(analyzeRequest) else {
+        guard let body = try? JSON.encoder.encode(analyzeRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }

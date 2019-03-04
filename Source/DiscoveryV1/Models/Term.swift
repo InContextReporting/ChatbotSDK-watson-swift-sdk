@@ -24,6 +24,9 @@ public struct Term: Codable, Equatable {
      */
     public var type: String?
 
+    /**
+     Array of aggregation results.
+     */
     public var results: [AggregationResult]?
 
     /**

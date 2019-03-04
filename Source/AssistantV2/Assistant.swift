@@ -142,7 +142,7 @@ public class Assistant {
 
      - parameter assistantID: Unique identifier of the assistant. You can find the assistant ID of an assistant on the
        **Assistants** tab of the Watson Assistant tool. For information about creating assistants, see the
-       [documentation](https://cloud.ibm.com/docs/services/assistant/create-assistant.html#creating-assistants).
+       [documentation](https://console.bluemix.net/docs/services/assistant/assistant-add.html#assistant-add-task).
        **Note:** Currently, the v2 API does not support creating assistants.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
@@ -160,7 +160,6 @@ public class Assistant {
         let metadataHeaders = Shared.getMetadataHeaders(serviceName: serviceName, serviceVersion: serviceVersion, methodName: "createSession")
         headerParameters.merge(metadataHeaders) { (_, new) in new }
         headerParameters["Accept"] = "application/json"
-        headerParameters["Content-Type"] = "application/json"
 
         // construct query parameters
         var queryParameters = [URLQueryItem]()
@@ -193,7 +192,7 @@ public class Assistant {
 
      - parameter assistantID: Unique identifier of the assistant. You can find the assistant ID of an assistant on the
        **Assistants** tab of the Watson Assistant tool. For information about creating assistants, see the
-       [documentation](https://cloud.ibm.com/docs/services/assistant/create-assistant.html#creating-assistants).
+       [documentation](https://console.bluemix.net/docs/services/assistant/assistant-add.html#assistant-add-task).
        **Note:** Currently, the v2 API does not support creating assistants.
      - parameter sessionID: Unique identifier of the session.
      - parameter headers: A dictionary of request headers to be sent with this request.
@@ -246,11 +245,13 @@ public class Assistant {
 
      - parameter assistantID: Unique identifier of the assistant. You can find the assistant ID of an assistant on the
        **Assistants** tab of the Watson Assistant tool. For information about creating assistants, see the
-       [documentation](https://cloud.ibm.com/docs/services/assistant/create-assistant.html#creating-assistants).
+       [documentation](https://console.bluemix.net/docs/services/assistant/assistant-add.html#assistant-add-task).
        **Note:** Currently, the v2 API does not support creating assistants.
      - parameter sessionID: Unique identifier of the session.
      - parameter input: An input object that includes the input text.
-     - parameter context: State information for the conversation.
+     - parameter context: State information for the conversation. The context is stored by the assistant on a
+       per-session basis. You can use this property to set or modify context variables, which can also be accessed by
+       dialog nodes.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
@@ -266,7 +267,7 @@ public class Assistant {
         let messageRequest = MessageRequest(
             input: input,
             context: context)
-        guard let body = try? JSONEncoder().encodeIfPresent(messageRequest) else {
+        guard let body = try? JSON.encoder.encodeIfPresent(messageRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }

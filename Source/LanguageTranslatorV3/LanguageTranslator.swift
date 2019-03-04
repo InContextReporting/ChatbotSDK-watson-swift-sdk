@@ -163,7 +163,7 @@ public class LanguageTranslator {
             modelID: modelID,
             source: source,
             target: target)
-        guard let body = try? JSONEncoder().encode(translateRequest) else {
+        guard let body = try? JSON.encoder.encode(translateRequest) else {
             completionHandler(nil, WatsonError.serialization(values: "request body"))
             return
         }
@@ -369,8 +369,6 @@ public class LanguageTranslator {
      - parameter baseModelID: The model ID of the model to use as the base for customization. To see available models,
        use the `List models` method. Usually all IBM provided models are customizable. In addition, all your models that
        have been created via parallel corpus customization, can be further customized with a forced glossary.
-     - parameter name: An optional model name that you can use to identify the model. Valid characters are letters,
-       numbers, dashes, underscores, spaces and apostrophes. The maximum length is 32 characters.
      - parameter forcedGlossary: A TMX file with your customizations. The customizations in the file completely
        overwrite the domain translaton data, including high frequency or high confidence phrase translations. You can
        upload only one glossary with a file size less than 10 MB per call. A forced glossary should contain single words
@@ -378,34 +376,26 @@ public class LanguageTranslator {
      - parameter parallelCorpus: A TMX file with parallel sentences for source and target language. You can upload
        multiple parallel_corpus files in one request. All uploaded parallel_corpus files combined, your parallel corpus
        must contain at least 5,000 parallel sentences to train successfully.
+     - parameter name: An optional model name that you can use to identify the model. Valid characters are letters,
+       numbers, dashes, underscores, spaces and apostrophes. The maximum length is 32 characters.
      - parameter headers: A dictionary of request headers to be sent with this request.
      - parameter completionHandler: A function executed when the request completes with a successful result or error
      */
     public func createModel(
         baseModelID: String,
+        forcedGlossary: Data? = nil,
+        parallelCorpus: Data? = nil,
         name: String? = nil,
-        forcedGlossary: URL? = nil,
-        parallelCorpus: URL? = nil,
         headers: [String: String]? = nil,
         completionHandler: @escaping (WatsonResponse<TranslationModel>?, WatsonError?) -> Void)
     {
         // construct body
         let multipartFormData = MultipartFormData()
         if let forcedGlossary = forcedGlossary {
-            do {
-                try multipartFormData.append(file: forcedGlossary, withName: "forced_glossary")
-            } catch {
-                completionHandler(nil, WatsonError.serialization(values: "file \(forcedGlossary.path)"))
-                return
-            }
+            multipartFormData.append(forcedGlossary, withName: "forced_glossary")
         }
         if let parallelCorpus = parallelCorpus {
-            do {
-                try multipartFormData.append(file: parallelCorpus, withName: "parallel_corpus")
-            } catch {
-                completionHandler(nil, WatsonError.serialization(values: "file \(parallelCorpus.path)"))
-                return
-            }
+            multipartFormData.append(parallelCorpus, withName: "parallel_corpus")
         }
         guard let body = try? multipartFormData.toData() else {
             completionHandler(nil, WatsonError.serialization(values: "request multipart form data"))

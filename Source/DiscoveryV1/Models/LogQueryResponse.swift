@@ -26,6 +26,9 @@ public struct LogQueryResponse: Codable, Equatable {
      */
     public var matchingResults: Int?
 
+    /**
+     Array of log query response results.
+     */
     public var results: [LogQueryResponseResult]?
 
     // Map each property name to the key that shall be used for encoding/decoding.

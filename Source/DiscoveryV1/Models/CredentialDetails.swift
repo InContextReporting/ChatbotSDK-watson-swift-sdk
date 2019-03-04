@@ -45,7 +45,6 @@ public struct CredentialDetails: Codable, Equatable {
      */
     public enum SourceVersion: String {
         case online = "online"
-        case sp2016 = "2016"
     }
 
     /**
