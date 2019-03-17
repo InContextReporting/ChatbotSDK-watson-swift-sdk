@@ -153,6 +153,7 @@ extension VisualRecognition {
 
         // construct and execute each classification request
         var results = [(MLModel, [VNClassificationObservation])]()
+        var errors = [WatsonError]()
         let dispatchGroup = DispatchGroup()
         for classifierID in classifierIDs {
             dispatchGroup.enter()
@@ -165,9 +166,9 @@ extension VisualRecognition {
                 do {
                     model = try self.loadModelFromDisk(classifierID: classifierID)
                 } catch {
-                    dispatchGroup.leave()
                     let error = WatsonError.other(message: "Failed to load model for classifier \(classifierID): \(error.localizedDescription)")
-                    completionHandler(nil, error)
+                    errors.append(error)
+                    dispatchGroup.leave()
                     return
                 }
 
@@ -176,28 +177,26 @@ extension VisualRecognition {
                 do {
                     classifier = try VNCoreMLModel(for: model)
                 } catch {
-                    dispatchGroup.leave()
                     let error = WatsonError.other(message: "Failed to convert model for classifier \(classifierID): \(error.localizedDescription)")
-                    completionHandler(nil, error)
+                    errors.append(error)
+                    dispatchGroup.leave()
                     return
                 }
 
                 // construct classification request
                 let request = VNCoreMLRequest(model: classifier) { request, error in
+                    defer { dispatchGroup.leave() }
                     if let error = error {
-                        dispatchGroup.leave()
                         let error = WatsonError.other(message: "Classifier \(classifierID) failed with error: \(error)")
-                        completionHandler(nil, error)
+                        errors.append(error)
                         return
                     }
                     guard let observations = request.results as? [VNClassificationObservation] else {
-                        dispatchGroup.leave()
                         let error = WatsonError.other(message: "Failed to parse results for classifier \(classifierID)")
-                        completionHandler(nil, error)
+                        errors.append(error)
                         return
                     }
                     results.append((model, observations))
-                    dispatchGroup.leave()
                 }
 
                 // scale image (yields results in line with vision demo)
@@ -208,9 +207,9 @@ extension VisualRecognition {
                     let requestHandler = VNImageRequestHandler(data: imageData)
                     try requestHandler.perform([request])
                 } catch {
-                    dispatchGroup.leave()
                     let error = WatsonError.other(message: "Failed to process classification request: \(error.localizedDescription)")
-                    completionHandler(nil, error)
+                    errors.append(error)
+                    dispatchGroup.leave()
                     return
                 }
             }
@@ -218,7 +217,10 @@ extension VisualRecognition {
 
         // return results after all classification requests have executed
         dispatchGroup.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
-            guard !results.isEmpty else { return }
+            guard errors.isEmpty else {
+                completionHandler(nil, errors[0])
+                return
+            }
             let classifiedImages: ClassifiedImages
             do {
                 classifiedImages = try self.convert(results: results, threshold: threshold)
