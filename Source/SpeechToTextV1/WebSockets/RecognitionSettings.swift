@@ -28,6 +28,8 @@ public struct RecognitionSettings: Codable, Equatable {
     /// The action to perform. Must be `start` to begin the request.
     private let action = "start"
 
+    public var profile: String?
+
     /// The format of the audio data. Endianness is automatically detected by the Speech to Text
     /// service. For more information about the supported formats, visit:
     /// https://cloud.ibm.com/docs/services/speech-to-text/audio-formats.html
@@ -137,5 +139,6 @@ public struct RecognitionSettings: Codable, Equatable {
         case speakerLabels = "speaker_labels"
         case grammarName = "grammar_name"
         case redaction = "redaction"
+        case profile = "profile"
     }
 }
